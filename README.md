@@ -1,215 +1,336 @@
-MeaningFlow
+# MeaningFlow
 
-Modeling Meaning, Visibility, and Demand in High-Dimensional Systems
+**Semantic content modeling and coverage gap analysis.**
 
-Overview
+MeaningFlow measures how thoroughly your content covers the topics your audience is searching for — and shows you exactly where the gaps are.
 
-MeaningFlow is a semantic market modeling framework designed to understand how meaning propagates through high-dimensional systems—such as search engines, recommender systems, and AI-mediated content interfaces—and how that structure translates into visibility, demand, and economic outcomes.
+It takes two corpora (your content and your users' queries), embeds them into a shared semantic space, clusters by topic, builds a graph of relationships between clusters, and computes coverage gaps: areas of high demand with no corresponding supply. The output is a ranked list of opportunities your editorial and content teams can act on immediately.
 
-Modern digital markets no longer operate on keywords or discrete rules. They operate on continuous semantic representations, probabilistic retrieval, and mediated attention. MeaningFlow provides a structured way to model these systems as semantic graphs embedded in high-dimensional space, enabling decision-oriented analysis rather than descriptive reporting.
+Built on Sentence-BERT, UMAP, HDBSCAN, and NetworkX.
 
-The Problem MeaningFlow Solves
+![MeaningFlow Pipeline](assets/meaningflow-pipeline.png)
 
-Most analytics systems answer questions like:
+---
 
-What content performs well?
+## Quickstart
 
-What keywords rank?
+```bash
+pip install meaningflow
+```
 
-What channels convert?
+```python
+from meaningflow import SemanticGraph
 
-They struggle to answer:
+# What users are searching for (demand)
+queries = ["how to train a puppy", "best dog food", "cat litter reviews", ...]
 
-Why visibility emerges in some regions of meaning space and not others
+# What your site already covers (supply)
+content = ["Puppy Training 101", "Dog Food Buyer's Guide", ...]
 
-Where semantic gaps constrain demand capture
+# Build semantic graphs for both
+demand = SemanticGraph(texts=queries, embedder="all-MiniLM-L6-v2", min_cluster_size=30)
+demand.fit()
 
-How content competes or cannibalizes within AI-mediated retrieval systems
+supply = SemanticGraph(texts=content, embedder="all-MiniLM-L6-v2", min_cluster_size=30)
+supply.fit()
 
-What investments shift outcomes rather than react to them
+# Find where demand exists but supply doesn't
+gaps = demand.coverage_gaps(reference=supply, similarity_threshold=0.55)
 
-Keyword-based SEO, topic dashboards, and attribution models all fail for the same reason:
+for gap in gaps[:10]:
+    print(f"Gap (n={gap.size}): {gap.top_terms[:5]}  volume={gap.volume}")
+```
 
-They observe outcomes without modeling the semantic structure that produces them.
+Output:
+```
+Gap (n=142): ['cat anxiety', 'stressed cat', 'cat hiding', 'nervous cat behavior', 'calm cat'] volume=3420
+Gap (n=89):  ['reptile habitat', 'terrarium setup', 'gecko care', 'snake enclosure', 'heat lamp'] volume=2105
+Gap (n=67):  ['pet insurance cost', 'vet bill help', 'pet health plan', 'cheap pet insurance', 'emergency vet'] volume=1890
+...
+```
 
-MeaningFlow addresses this gap by modeling meaning itself as a first-class object.
+Each gap cluster represents a topical area where your audience has demand but your content has no coverage. These are your highest-priority content opportunities.
 
-Core Concept
+---
 
-MeaningFlow treats content, queries, and entities as points and structures in a high-dimensional semantic space, then represents their relationships as graphs whose structure determines visibility and demand under system mediation.
+## How It Works
 
-At a high level:
+MeaningFlow runs a four-stage pipeline:
 
-Semantic representation defines where meaning lives
+**1. Embed** — Convert texts into dense vectors using a Sentence-BERT model. "How to train a puppy" and "puppy training tips" land near each other in this space even without shared keywords.
 
-Graph structure defines how meaning connects and competes
+**2. Reduce** — Project high-dimensional embeddings into a lower-dimensional space using UMAP. This stabilizes clustering and makes the structure visualizable.
 
-Demand translation defines why some meaning converts into value
+**3. Cluster** — Group similar vectors by density using HDBSCAN. Each cluster represents a coherent topic. Outliers (the `-1` bucket) are texts too unique to cluster — typically 10-25% of a healthy corpus.
 
-MeaningFlow focuses on structure, not tactics.
+**4. Graph + Coverage** — Build a NetworkX graph over the clusters, connecting those with high inter-cluster similarity. Then compare demand clusters against supply clusters to find gaps: regions of the demand graph with no nearby supply.
 
-What MeaningFlow Is (and Is Not)
-MeaningFlow is:
+---
 
-A framework for semantic representation and structure
+## Core API
 
-A way to analyze visibility as a function of meaning, not keywords
+### `SemanticGraph`
 
-A bridge between embeddings, graphs, and economic outcomes
+The main entry point. Wraps the full embed → reduce → cluster → graph pipeline into a single object.
 
-A foundation for simulation and counterfactual analysis
+```python
+from meaningflow import SemanticGraph
 
-MeaningFlow is not:
+sg = SemanticGraph(
+    texts=["list", "of", "strings"],
+    embedder="all-MiniLM-L6-v2",   # any Sentence-BERT model
+    min_cluster_size=30,            # HDBSCAN param: min points per cluster
+    min_samples=10,                 # HDBSCAN param: core point threshold
+    umap_n_neighbors=30,            # UMAP param: local neighborhood size
+    umap_n_components=10,           # UMAP param: reduced dimensions
+    random_state=42,                # reproducibility
+)
 
-An SEO tool
+sg.fit()
+```
 
-A keyword optimization system
+**Properties after fitting:**
 
-A content generator
+| Property | Type | Description |
+|----------|------|-------------|
+| `sg.n_clusters` | `int` | Number of clusters found (excluding noise) |
+| `sg.labels` | `np.ndarray` | Cluster label per text (-1 = noise) |
+| `sg.clusters` | `list[Cluster]` | List of `Cluster` objects with metadata |
+| `sg.embeddings` | `np.ndarray` | Raw embeddings |
+| `sg.reduced` | `np.ndarray` | UMAP-reduced embeddings |
+| `sg.graph` | `nx.Graph` | NetworkX graph over clusters |
+| `sg.noise_ratio` | `float` | Fraction of texts in the noise bucket |
 
-A ranking predictor
+### `SemanticGraph.coverage_gaps()`
 
-It is designed to support decision-making, not growth hacks.
+Compare this graph against a reference graph to find gap clusters.
 
-System Architecture (Conceptual)
+```python
+gaps = demand.coverage_gaps(
+    reference=supply,
+    similarity_threshold=0.55,   # min cosine similarity to count as "covered"
+)
+```
 
-MeaningFlow models semantic systems in three layers:
+Returns a list of `GapCluster` objects, sorted by volume descending.
 
-1. Semantic Space
+### `Cluster`
 
-Text, queries, documents, and entities represented as embeddings
+Represents a single topic cluster.
 
-Distance and geometry encode similarity, intent, and overlap
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `cluster.id` | `int` | Cluster label from HDBSCAN |
+| `cluster.size` | `int` | Number of texts in this cluster |
+| `cluster.top_terms` | `list[str]` | Most representative texts (by proximity to centroid) |
+| `cluster.centroid` | `np.ndarray` | Mean embedding of cluster members |
+| `cluster.texts` | `list[str]` | All texts assigned to this cluster |
 
-High-dimensional structure replaces discrete keyword logic
+### `GapCluster`
 
-2. Visibility Structure
+A demand cluster with no matching supply cluster.
 
-Graphs connect semantic objects via similarity, authority, and mediation
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `gap.id` | `int` | Cluster label from the demand graph |
+| `gap.size` | `int` | Number of queries in this cluster |
+| `gap.top_terms` | `list[str]` | Most representative queries |
+| `gap.volume` | `int` | Total search volume (if volume data provided) |
+| `gap.nearest_supply` | `str` | Label of the closest supply cluster |
+| `gap.nearest_similarity` | `float` | Cosine similarity to that nearest supply cluster |
 
-Nodes compete for attention under system constraints
+---
 
-Structure explains coverage, redundancy, and scarcity
+## Use Cases
 
-3. Demand Translation
+**Taxonomy design.** Run MeaningFlow on your query logs. The resulting clusters are a data-driven proposal for your category hierarchy. Editors review the clusters, name them, and decide which deserve branches in the taxonomy.
 
-Visibility is weighted by demand signals
+**Content gap analysis.** Compare demand (queries) against supply (existing content). The gaps are your editorial roadmap, ranked by volume.
 
-Semantic proximity alone is insufficient
+**Synonym discovery.** Terms that consistently co-occur in the same cluster across queries are candidates for synonym pairs. Extract them programmatically and route to editorial review.
 
-Economic relevance determines value
+**Classifier sanity checking.** Run a classifier's output back through MeaningFlow. If a document is classified as "Hip-Hop" but its embedding sits inside a "Classical" cluster, that's a flag for human review.
 
-This separation prevents conflating representation with impact.
+**Drift monitoring.** Run MeaningFlow monthly. Compare the current demand graph against last month's. New clusters = emerging topics. Shrinking clusters = declining interest. Rising gap count = your content is falling behind.
 
-What Questions MeaningFlow Enables
+---
 
-MeaningFlow is designed to answer questions such as:
+## Advanced Usage
 
-Where are we structurally under-represented in semantic space?
+### Using your own embeddings
 
-Which topics or entities cannibalize each other?
+If you've already embedded your texts elsewhere, pass them directly:
 
-What semantic regions carry unmet or poorly served demand?
+```python
+import numpy as np
 
-How might AI-generated summaries change content payoffs?
+my_embeddings = np.load("precomputed_embeddings.npy")
 
-What is the marginal value of expanding coverage in a specific region of meaning space?
+sg = SemanticGraph(
+    texts=my_texts,
+    embeddings=my_embeddings,   # skip the embedding step
+    min_cluster_size=30,
+)
+sg.fit()
+```
 
-These questions cannot be answered with dashboards alone.
+### Providing volume data
 
-Relationship to Other Systems
+For coverage gap analysis with search volume weighting:
 
-MeaningFlow is intentionally standalone, but designed for integration.
+```python
+demand = SemanticGraph(
+    texts=queries,
+    volumes=query_volumes,   # list[int], same length as texts
+    embedder="all-MiniLM-L6-v2",
+)
+demand.fit()
 
-MeaningFlow models semantic structure and visibility
+# Gaps are now sorted by total volume, not just cluster size
+gaps = demand.coverage_gaps(reference=supply)
+```
 
-Simulation frameworks (e.g., economic or causal engines) model dynamics, constraints, and counterfactuals
+### Exporting to Neo4j
 
-MeaningFlow provides the structural substrate required for simulation-based decision systems.
+```python
+from meaningflow.export import to_neo4j
 
-Intended Audience
+to_neo4j(
+    demand,
+    uri="bolt://localhost:7687",
+    auth=("neo4j", "password"),
+    database="meaningflow",
+)
+```
 
-MeaningFlow is built for:
+Creates nodes for each cluster and edges for inter-cluster relationships. Cluster properties include top terms, size, and centroid coordinates.
 
-Analytics and data science leaders
+### Quarterly health check
 
-Search, content, and growth strategists
+```python
+from meaningflow import SemanticGraph
+import json
 
-Researchers working with semantic or high-dimensional data
+# Fit current demand and supply
+demand = SemanticGraph(texts=current_queries, embedder="all-MiniLM-L6-v2")
+demand.fit()
 
-Organizations navigating AI-mediated discovery systems
+supply = SemanticGraph(texts=current_content, embedder="all-MiniLM-L6-v2")
+supply.fit()
 
-## Notebook Walkthrough
+gaps = demand.coverage_gaps(reference=supply)
 
-MeaningFlow includes a fully worked example demonstrating the core framework.
+report = {
+    "supply_clusters": supply.n_clusters,
+    "demand_clusters": demand.n_clusters,
+    "gap_clusters": len(gaps),
+    "noise_ratio_demand": demand.noise_ratio,
+    "noise_ratio_supply": supply.noise_ratio,
+    "top_gaps": [
+        {"terms": g.top_terms[:5], "volume": g.volume, "size": g.size}
+        for g in gaps[:20]
+    ],
+}
 
-### Notebook 01 — Semantic Space, Coverage & Opportunity
-**Location:** `notebooks/01_semantic_space_coverage_opportunity.ipynb`
+with open("semantic_health_report.json", "w") as f:
+    json.dump(report, f, indent=2)
+```
 
-This notebook:
-- Embeds documents, queries, and entities into a shared semantic space
-- Measures demand-weighted semantic coverage
-- Identifies high-value opportunity gaps
-- Analyzes authority flow and structural bottlenecks
-- Exports decision-ready artifacts
+---
 
-### Generated Outputs
-Results from the notebook are written to:
+## Installation
 
-outputs/exports/
+**From PyPI:**
+```bash
+pip install meaningflow
+```
 
+**From source:**
+```bash
+git clone https://github.com/Bodhi8/Meaning-Flow.git
+cd Meaning-Flow
+pip install -e ".[all]"
+```
 
-Including:
-- `opportunities.csv` — query-level opportunity ranking
-- `coverage_by_section.csv` — demand-weighted coverage by site section
-- `opportunity_by_entity.csv` — entity-level opportunity attribution
-- `graph_metrics.csv` — authority hubs, bottlenecks, isolates
-- `executive_summary.md` — short decision memo
+**Dependencies:**
+- Python >= 3.9
+- sentence-transformers >= 2.2.0
+- umap-learn >= 0.5.3
+- hdbscan >= 0.8.33
+- networkx >= 3.1
+- numpy, pandas, scikit-learn, scipy, tqdm
 
-These outputs allow MeaningFlow to be evaluated without executing the notebook.
+**Optional (visualization):**
+```bash
+pip install meaningflow[viz]
+```
 
+Adds matplotlib, plotly, and seaborn for cluster visualization.
 
-It assumes comfort with abstraction and modeling, not SEO tactics.
+---
 
-Repository Structure (Initial)
+## Project Structure
+
+```
 meaningflow/
-│
-├── README.md
-├── docs/
-│   └── thesis.md
-├── notebooks/
-│   ├── 01_semantic_space.ipynb
-│   ├── 02_visibility_graph.ipynb
-│   └── 03_demand_translation.ipynb
-├── meaningflow/
-│   ├── embeddings.py
-│   ├── graph.py
-│   ├── coverage.py
-│   └── demand.py
-└── data/
-    └── examples/
+    __init__.py          # Public API: SemanticGraph, Cluster, GapCluster
+    core.py              # SemanticGraph implementation
+    embeddings.py        # Sentence-BERT encoding
+    clustering.py        # UMAP reduction + HDBSCAN clustering
+    graph.py             # NetworkX graph construction
+    coverage.py          # Coverage gap analysis
+    models.py            # Cluster and GapCluster dataclasses
+    export/
+        __init__.py
+        neo4j.py         # Neo4j graph export
+notebooks/
+    demo_coverage_gaps.ipynb
+data/
+    examples/
+        sample_queries.csv
+        sample_content.csv
+assets/
+    meaningflow-pipeline.png
+```
 
+---
 
-The emphasis is on clarity and structure over tooling.
+## Related Work
 
-Design Philosophy
+MeaningFlow is part of a broader set of open-source tools from [Vector1 Research](https://vector1.ai):
 
-MeaningFlow follows three principles:
+- **[Papilon](https://github.com/Bodhi8/papilon)** — Marketing mix modeling, causal discovery, and complex systems simulation
+- **[PyCausalSim](https://github.com/Bodhi8/pycausalsim)** — Causal discovery through simulation
 
-Structure before metrics
-Understand the system before measuring outcomes.
+For a detailed walkthrough of how MeaningFlow fits into a knowledge engineering stack, see:
+- [Knowledge Engineering for Search and Content: A Practical Guide](https://medium.com/@brian-curry-research)
+- [Building a Knowledge Engineering System: An Engineering Guide](https://medium.com/@brian-curry-research)
 
-Meaning before performance
-Visibility emerges from semantic geometry, not optimization tricks.
+---
 
-Decisions over dashboards
-If it doesn’t change what you do, it’s not the goal.
+## Contributing
 
-Status
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. Issues, feature requests, and PRs welcome.
 
-MeaningFlow is an active research and modeling framework.
-It is evolving alongside work in semantic representation, AI-mediated retrieval, and decision-oriented analytics.
+---
 
-License
+## License
 
-Open-source. Intended for research, learning, and applied modeling.
+MIT — see [LICENSE](LICENSE) for details.
+
+---
+
+## Citation
+
+```bibtex
+@software{meaningflow2025,
+    title = {MeaningFlow: Semantic Content Modeling and Coverage Gap Analysis},
+    author = {Brian Curry},
+    year = {2025},
+    url = {https://github.com/Bodhi8/Meaning-Flow}
+}
+```
+
+---
+
+*Built by [Brian Curry](https://linkedin.com/in/briancurry) / [Vector1 Research](https://vector1.ai)*

@@ -1,21 +1,26 @@
 """
-MeaningFlow: Semantic Market Modeling Framework
+MeaningFlow: Semantic Content Modeling and Coverage Gap Analysis
 
-A framework for understanding how meaning propagates through high-dimensional 
-systems and how that structure translates into visibility, demand, and outcomes.
+A framework for measuring how thoroughly your content covers the topics
+your audience is searching for, and finding where the gaps are.
+
+Quickstart:
+    >>> from meaningflow import SemanticGraph
+    >>> demand = SemanticGraph(texts=queries, embedder="all-MiniLM-L6-v2")
+    >>> demand.fit()
+    >>> supply = SemanticGraph(texts=content, embedder="all-MiniLM-L6-v2")
+    >>> supply.fit()
+    >>> gaps = demand.coverage_gaps(reference=supply)
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
-from .embeddings import SemanticEmbedder
-from .graph import SemanticGraph
-from .coverage import CoverageAnalyzer
-from .demand import DemandMapper
+from .core import SemanticGraph
+from .models import Cluster, GapCluster
 
 __all__ = [
-    "SemanticEmbedder",
-    "SemanticGraph", 
-    "CoverageAnalyzer",
-    "DemandMapper",
+    "SemanticGraph",
+    "Cluster",
+    "GapCluster",
     "__version__",
 ]
