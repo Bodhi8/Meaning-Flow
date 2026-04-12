@@ -1,0 +1,12 @@
+src_id,dst_id,type,weight,confidence,metadata_json
+doc_001,doc_002,INTERNAL_LINK,1.0,0.95,"{""source"":""crawl"",""reason"":""in-article-link""}"
+doc_003,doc_002,INTERNAL_LINK,1.0,0.95,"{""source"":""crawl"",""reason"":""related-products-link""}"
+doc_001,ent_001,ENTITY_MENTION,1.0,0.90,"{""source"":""nlp"",""method"":""pattern+entity_dict""}"
+doc_001,ent_002,ENTITY_MENTION,0.8,0.85,"{""source"":""nlp"",""method"":""pattern+entity_dict""}"
+doc_003,ent_003,ENTITY_MENTION,1.0,0.90,"{""source"":""nlp"",""method"":""pattern+entity_dict""}"
+qry_001,ent_001,SIMILARITY,0.86,0.80,"{""source"":""embedding"",""model_id"":""example-embedding-v1""}"
+qry_001,doc_001,SIMILARITY,0.88,0.80,"{""source"":""embedding"",""model_id"":""example-embedding-v1""}"
+qry_001,doc_002,SIMILARITY,0.82,0.80,"{""source"":""embedding"",""model_id"":""example-embedding-v1""}"
+qry_003,doc_003,SIMILARITY,0.90,0.80,"{""source"":""embedding"",""model_id"":""example-embedding-v1""}"
+top_001,doc_001,CO_OCCURRENCE,0.70,0.70,"{""source"":""topic_seed"",""method"":""manual""}"
+top_002,doc_003,CO_OCCURRENCE,0.72,0.70,"{""source"":""topic_seed"",""method"":""manual""}"

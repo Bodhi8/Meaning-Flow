@@ -1,0 +1,11 @@
+node_id,node_type,label,pagerank,betweenness,in_degree,out_degree,is_hub,is_bottleneck,is_isolated
+cluster_0,cluster,Semantic SEO Basics,0.0821,0.156,12,8,True,True,False
+cluster_5,cluster,Topical Authority,0.0654,0.089,9,11,True,False,False
+doc_guide_001,content,Complete Semantic SEO Guide,0.0432,0.112,6,15,False,True,False
+cluster_3,cluster,Schema Markup,0.0398,0.034,4,3,False,False,False
+entity_knowledge_graph,entity,Knowledge Graph,0.0387,0.098,8,2,False,True,False
+cluster_7,cluster,Entity Optimization,0.0312,0.045,5,6,False,False,False
+doc_blog_042,content,Entity-First SEO Strategy,0.0298,0.023,3,4,False,False,False
+cluster_12,cluster,AI Search,0.0245,0.012,2,2,False,False,False
+cluster_15,cluster,Google SGE,0.0156,0.008,1,1,False,False,False
+cluster_9,cluster,Passage Indexing,0.0089,0.002,0,0,False,False,True

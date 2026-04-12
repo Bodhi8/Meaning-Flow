@@ -1,0 +1,12 @@
+id,type,text,metadata_json
+doc_001,DOCUMENT,"Guide: Best trail running shoes for winter","{""site_section"":""blog"",""url"":""/blog/winter-trail-running-shoes"",""brand"":""ExampleBrand"",""published_date"":""2025-11-10""}"
+doc_002,DOCUMENT,"Product Category: Trail Running Shoes","{""site_section"":""category"",""url"":""/trail-running-shoes"",""brand"":""ExampleBrand"",""published_date"":""2025-01-15""}"
+doc_003,DOCUMENT,"How to choose running shoes: stability vs neutral","{""site_section"":""blog"",""url"":""/blog/stability-vs-neutral-running-shoes"",""brand"":""ExampleBrand"",""published_date"":""2025-09-20""}"
+qry_001,QUERY,"best trail running shoes winter","{""source"":""search"",""market"":""US""}"
+qry_002,QUERY,"trail running shoes near me","{""source"":""search"",""market"":""US""}"
+qry_003,QUERY,"stability vs neutral running shoes","{""source"":""search"",""market"":""US""}"
+ent_001,ENTITY,"trail running shoes","{""entity_type"":""product_category""}"
+ent_002,ENTITY,"winter traction","{""entity_type"":""feature""}"
+ent_003,ENTITY,"stability shoes","{""entity_type"":""product_type""}"
+top_001,TOPIC,"winter trail running","{""method"":""manual_seed""}"
+top_002,TOPIC,"shoe fit and support","{""method"":""manual_seed""}"

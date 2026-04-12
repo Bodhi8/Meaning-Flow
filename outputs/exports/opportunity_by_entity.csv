@@ -1,0 +1,11 @@
+entity,entity_type,mention_count,associated_demand,content_coverage,opportunity_score
+Schema.org,Organization,12,67000,0.45,36850
+Knowledge Graph,Concept,8,54000,0.35,35100
+Google SGE,Product,3,48000,0.10,43200
+Structured Data,Concept,15,42000,0.72,11760
+Entity SEO,Concept,6,38000,0.25,28500
+BERT,Technology,9,31000,0.68,9920
+Passage Indexing,Feature,4,28000,0.18,22960
+Topical Authority,Concept,11,26000,0.85,3900
+E-E-A-T,Concept,7,24000,0.58,10080
+Semantic Search,Concept,14,22000,0.91,1980

@@ -1,0 +1,56 @@
+# MeaningFlow — Notebook 01 Guide  
+**Semantic Space, Coverage, Opportunity & Authority**
+
+## Purpose
+
+Notebook 01 demonstrates the core MeaningFlow workflow: modeling meaning as a
+high-dimensional system, measuring semantic coverage, identifying demand-weighted
+opportunities, and diagnosing structural authority flow.
+
+The notebook is designed to be:
+- Readable top-to-bottom as a narrative
+- Runnable without external data sources
+- Interpretable without deep SEO or IR background
+
+It prioritizes **decision support**, not prediction.
+
+---
+
+## What This Notebook Does
+
+The notebook proceeds in four stages:
+
+### Step 3.1 — Semantic Geometry
+- Embeds documents, queries, and entities into a shared vector space
+- Computes semantic similarity using cosine distance
+- Constructs semantic similarity edges
+- Measures demand-weighted semantic coverage
+- Identifies high-value semantic opportunity gaps
+
+### Step 3.2 — Structural Analysis
+- Builds subgraphs for:
+  - Internal link authority flow
+  - Semantic connectivity
+- Computes:
+  - Degree metrics
+  - PageRank (authority hubs)
+  - Betweenness centrality (bottlenecks)
+  - Isolates (structural gaps)
+
+### Step 3.3 — Segmented Coverage & Opportunity
+- Attributes coverage and opportunity by:
+  - Site section
+  - Entity domains (via document–entity mentions)
+- Enables prioritization by interpretable business segments
+
+### Step 3.4 — Exports & Executive Summary
+- Writes CSV outputs to `outputs/exports/`
+- Generates a short executive summary memo
+- Makes results usable without running the notebook
+
+---
+
+## Inputs
+
+All inputs are synthetic examples located in:
+

@@ -1,0 +1,8 @@
+section,cluster_count,content_count,total_demand,covered_demand,coverage_score,gap_demand
+/guides,8,24,125000,112500,0.90,12500
+/blog,12,45,98000,78400,0.80,19600
+/tools,4,8,67000,33500,0.50,33500
+/glossary,6,18,45000,45000,1.00,0
+/case-studies,3,6,32000,24000,0.75,8000
+/resources,5,12,28000,21000,0.75,7000
+/api-docs,2,15,18000,18000,1.00,0

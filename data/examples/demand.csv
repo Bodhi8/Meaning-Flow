@@ -1,0 +1,10 @@
+object_id,signal_type,value,start_date,end_date,segment_json,source
+qry_001,SEARCH_VOLUME,5400,2025-10-01,2025-10-31,"{""market"":""US"",""device"":""all""}",GSC
+qry_002,SEARCH_VOLUME,2200,2025-10-01,2025-10-31,"{""market"":""US"",""device"":""mobile""}",GSC
+qry_003,SEARCH_VOLUME,1600,2025-10-01,2025-10-31,"{""market"":""US"",""device"":""all""}",GSC
+doc_001,CLICKS,420,2025-10-01,2025-10-31,"{""market"":""US"",""channel"":""organic""}",GSC
+doc_002,CLICKS,760,2025-10-01,2025-10-31,"{""market"":""US"",""channel"":""organic""}",GSC
+doc_003,CLICKS,190,2025-10-01,2025-10-31,"{""market"":""US"",""channel"":""organic""}",GSC
+doc_002,CONVERSIONS,52,2025-10-01,2025-10-31,"{""market"":""US"",""channel"":""organic""}",GA4
+doc_002,REVENUE,7800,2025-10-01,2025-10-31,"{""market"":""US"",""channel"":""organic""}",GA4
+ent_001,ENGAGEMENT,0.62,2025-10-01,2025-10-31,"{""market"":""US""}",Internal

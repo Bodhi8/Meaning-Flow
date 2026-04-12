@@ -1,0 +1,11 @@
+cluster_id,representative_queries,total_demand,content_count,coverage_score,gap_score,opportunity_rank
+3,"schema markup tutorial; how to add schema; structured data guide",45000,0,0.0,45000,1
+7,"entity seo optimization; knowledge graph seo; entity-first seo",38000,1,0.5,19000,2
+12,"semantic search ranking; ai search optimization; llm seo",31000,1,0.5,15500,3
+5,"topical authority building; topic clusters seo; content hub strategy",28000,2,1.0,0,4
+0,"what is semantic seo; semantic seo basics; semantic seo definition",22000,3,1.0,0,5
+9,"passage indexing optimization; featured snippet optimization",18500,0,0.0,18500,6
+15,"google sge optimization; ai overview optimization; generative search",16000,0,0.0,16000,7
+2,"internal linking strategy; contextual linking; link architecture",14000,2,1.0,0,8
+11,"competitor content gap analysis; content gap finder",12500,1,0.5,6250,9
+8,"search intent clustering; query intent analysis",11000,2,1.0,0,10

@@ -1,0 +1,230 @@
+# MeaningFlow Data Model Specification
+
+This document defines the core data model for **MeaningFlow**, a framework for modeling meaning, visibility, and demand in high-dimensional systems. The goal of this model is to represent semantic structure explicitly and connect it to decision-relevant outcomes without overfitting to any single platform, tool, or tactic.
+
+The design prioritizes:
+- Structural clarity
+- Extensibility
+- Decision-oriented analysis
+- Separation of representation, mediation, and outcomes
+
+---
+
+## 1. Core Principles
+
+MeaningFlow is built around four principles:
+
+1. **Semantic objects are first-class entities**  
+   Content, queries, and entities are treated uniformly as objects in semantic space.
+
+2. **Structure precedes metrics**  
+   Graph relationships explain outcomes; metrics validate them.
+
+3. **Demand gives meaning economic relevance**  
+   Semantics without demand is descriptive, not actionable.
+
+4. **Intervention requires structure**  
+   Causal and simulation-based reasoning depend on explicit structure.
+
+---
+
+## 2. Core Objects
+
+### 2.1 SemanticObject
+
+A `SemanticObject` represents anything that carries meaning within the system.
+
+#### Object Types
+- `DOCUMENT` — web pages, articles, product pages, landing pages
+- `QUERY` — search queries, prompts, questions
+- `ENTITY` — brands, products, people, concepts
+- `TOPIC` — latent intent regions or semantic clusters
+
+#### Fields
+
+| Field | Type | Description |
+|-----|-----|-------------|
+| `id` | string | Unique identifier |
+| `type` | enum | SemanticObject type |
+| `text` | string (optional) | Raw text used for embedding |
+| `metadata` | dict | Arbitrary attributes (site section, brand, date, etc.) |
+| `embedding` | vector (optional) | High-dimensional semantic representation |
+
+#### Notes
+- All downstream structures reference semantic objects by `id`
+- Embeddings may be attached post-creation
+- Metadata should be minimal and joinable
+
+---
+
+### 2.2 EmbeddingSpace
+
+An `EmbeddingSpace` defines how semantic meaning is represented geometrically.
+
+#### Fields
+
+| Field | Type | Description |
+|-----|-----|-------------|
+| `model_id` | string | Embedding model identifier |
+| `dim` | int | Embedding dimensionality |
+| `normalize` | bool | Whether vectors are normalized |
+| `distance` | enum | Similarity metric (`cosine`, `dot`, `euclidean`) |
+| `embeddings` | dict | Mapping from `object_id` → vector |
+| `version` | string | Version identifier for reproducibility |
+
+#### Notes
+- Embedding spaces must be swappable without changing downstream logic
+- Multiple embedding spaces may coexist for comparison
+- Versioning is required for experimental integrity
+
+---
+
+### 2.3 SemanticGraph
+
+A `SemanticGraph` encodes structural relationships between semantic objects.
+
+#### Nodes
+- Referenced by `SemanticObject.id`
+
+#### Edge Types
+- `SIMILARITY` — embedding-based proximity
+- `ENTITY_MENTION` — document references entity
+- `INTERNAL_LINK` — document-to-document link
+- `CO_OCCURRENCE` — entities/topics appearing together
+- `CO_CLICK` / `CO_VISIT` — behavioral association
+- `CANONICAL` / `REDIRECT` — technical structure
+
+#### Edge Fields
+
+| Field | Type | Description |
+|-----|-----|-------------|
+| `src_id` | string | Source object ID |
+| `dst_id` | string | Destination object ID |
+| `type` | enum | Relationship type |
+| `weight` | float | Strength of relationship |
+| `confidence` | float (optional) | Reliability of edge |
+| `metadata` | dict | Source, method, time window |
+
+#### Notes
+- Graph structure mediates visibility and competition
+- Weight semantics must be consistent within edge types
+- Graphs may be layered or multiplexed
+
+---
+
+### 2.4 DemandSignal
+
+A `DemandSignal` assigns economic relevance to semantic objects.
+
+#### Demand Types
+- `SEARCH_VOLUME`
+- `IMPRESSIONS`
+- `CLICKS`
+- `CONVERSIONS`
+- `REVENUE`
+- `ENGAGEMENT`
+- `AI_REFERENCES` (optional / future)
+
+#### Fields
+
+| Field | Type | Description |
+|-----|-----|-------------|
+| `object_id` | string | Referenced semantic object |
+| `signal_type` | enum | Type of demand |
+| `value` | float | Observed value |
+| `time_window` | tuple | `(start, end)` |
+| `segment` | dict | Market, device, geo, audience |
+| `source` | string | Origin system (GSC, GA4, logs) |
+
+#### Notes
+- Demand must be joinable by `object_id`
+- Multiple signals may exist per object
+- Segmentation enables comparative analysis
+
+---
+
+## 3. Decision-Oriented Objects (Optional)
+
+These objects support decision analysis but are not required for v0.
+
+### 3.1 VisibilityModel
+
+Represents how platforms mediate semantic structure into exposure.
+
+#### Fields
+- `platform`
+- `exposure_map`
+- `constraints`
+- `calibration`
+
+### 3.2 OutcomeModel
+
+Represents how exposure translates into economic value.
+
+#### Fields
+- `conversion_model`
+- `value_per_conversion`
+- `attribution_mode`
+
+---
+
+## 4. Minimal Join Schema
+
+All datasets must map into the following keys:
+
+- `object_id`
+- `object_type`
+- `time_window`
+- `segment`
+
+If a data source cannot conform to this schema, it is excluded from v0.
+
+---
+
+## 5. Core Derived Quantities
+
+MeaningFlow emphasizes **structural metrics**, not vanity KPIs.
+
+### 5.1 Semantic Coverage
+Demand-weighted measure of how well meaning space is occupied.
+
+### 5.2 Semantic Redundancy
+Degree of overlap and cannibalization between semantic objects.
+
+### 5.3 Authority Flow
+Graph-based amplification and bottleneck analysis.
+
+### 5.4 Demand-Weighted Opportunity
+Expected value of expanding semantic coverage.
+
+---
+
+## 6. v0 Scope Constraints
+
+Included:
+- Semantic objects
+- Embedding space
+- Similarity + link graphs
+- Demand-weighted coverage
+- Opportunity scoring
+
+Excluded:
+- Ranking prediction
+- Full causal identification
+- LLM prompt optimization
+- Multi-platform mediation
+
+---
+
+## 7. Design Intent
+
+This model is intentionally simple. Its power comes from:
+- Explicit structure
+- Clear separation of concerns
+- Compatibility with simulation and causal systems
+
+MeaningFlow is not designed to optimize tactics.  
+It is designed to **explain systems** and support **better decisions**.
+
+---
+
